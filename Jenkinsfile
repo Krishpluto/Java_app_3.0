@@ -73,6 +73,21 @@ pipeline{
                }
             }
         }
+         stage('Artifactory : Jfrog'){
+        when { expression {  params.action == 'create' } }
+            steps{
+                script{
+                    // Fetch EC2 public IPv4 address using AWS CLI
+                    def EC2_IP = sh(script: "aws ec2 describe-instances --region ${env.AWS_DEFAULT_REGION} --instance-ids ${env.AWS_INSTANCE_ID} --query 'Reservations[].Instances[].PublicIpAddress' --output text", returnStdout: true).trim()
+            
+                    // Replace EC2_IP placeholder in the curl command
+                    def curlCommand = "curl -X PUT -u admin -T kubernetes-configmap-reload-0.0.1-SNAPSHOT.jar http://${EC2_IP}:8082/artifactory/example-repo-local/"
+            
+                    // Execute the curl command
+                    sh curlCommand
+                }
+            }
+        }
         stage('Docker Image Build'){
          when { expression {  params.action == 'create' } }
             steps{
