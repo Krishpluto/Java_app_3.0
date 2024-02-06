@@ -77,14 +77,8 @@ pipeline{
         when { expression {  params.action == 'create' } }
             steps{
                 script{
-                    // Fetch EC2 public IPv4 address using AWS CLI
-                    def EC2_IP = sh(script: "aws ec2 describe-instances --region ${env.AWS_DEFAULT_REGION} --instance-ids ${env.AWS_INSTANCE_ID} --query 'Reservations[].Instances[].PublicIpAddress' --output text", returnStdout: true).trim()
-            
-                    // Replace EC2_IP placeholder in the curl command
-                    def curlCommand = "curl -X PUT -u admin -T kubernetes-configmap-reload-0.0.1-SNAPSHOT.jar http://${EC2_IP}:8082/artifactory/example-repo-local/"
-            
-                    // Execute the curl command
-                    sh curlCommand
+                    
+                    curl -X PUT -u admin -T kubernetes-configmap-reload-0.0.1-SNAPSHOT.jar http://13.233.137.42:8082/artifactory/example-repo-local/
                 }
             }
         }
