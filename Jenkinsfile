@@ -82,7 +82,7 @@ pipeline{
                             // If you're using username and password:
                         username: 'admin',
                         password: 'Jfrog123@'
-                    }    
+                    )    
                 }
             }
         }
