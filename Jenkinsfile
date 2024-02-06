@@ -78,7 +78,7 @@ pipeline{
                 script{
                     rtServer(
                         id: 'Artifactory-1',
-                        url: 'http://13.201.189.115:8081/',
+                        url: 'http://65.2.35.73:8081/',
                             // If you're using username and password:
                         username: 'admin',
                         password: 'Jfrog123@'
@@ -91,7 +91,7 @@ pipeline{
             when { expression { params.action == 'create' } }
             steps {
                 script {
-                    sh 'curl -X PUT -u admin -T kubernetes-configmap-reload-0.0.1-SNAPSHOT.jar http://13.233.137.42:8082/artifactory/example-repo-local/'
+                    sh 'curl -X PUT -u admin -T kubernetes-configmap-reload-0.0.1-SNAPSHOT.jar http://65.2.35.73:8082/artifactory/libs-release-local/'
                 }
             }
         }
