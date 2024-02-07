@@ -11,6 +11,7 @@ pipeline{
         string(name: 'ImageName', description: "name of the docker build", defaultValue: 'javapp')
         string(name: 'ImageTag', description: "tag of the docker build", defaultValue: 'v1')
         string(name: 'DockerHubUser', description: "name of the Application", defaultValue: 'rkiruthiga')
+        string(name: 'ArtifactoryURL', description: "URL of the Artifactory server", defaultValue: '')
     }
 
     stages{
@@ -73,28 +74,50 @@ pipeline{
                }
             }
         }
-        stage('Connect to Jfrog'){
+       // stage('Connect to Jfrog'){
+         //   steps{
+          //      script{
+             //       rtServer(
+                //        id: 'Artifactory-1',
+                  //      url: 'http://65.2.35.73:8081/',
+                    //        // If you're using username and password:
+                      //  username: 'admin',
+                        //password: 'Jfrog123@'
+  //                  )    
+    //            }
+      //      }
+        //}
+
+       //   stage('Artifactory : Jfrog') {
+         //   when { expression { params.action == 'create' } }
+           // steps {
+             //   script {
+               //     sh 'curl -X PUT -u admin -T kubernetes-configmap-reload-0.0.1-SNAPSHOT.jar http://65.2.35.73:8082/artifactory/libs-release-local/'
+       //         }
+         //   }
+   //     }
+        stage('Push to Jfrog'){
+            when { expression { params.action == 'create' } }
             steps{
                 script{
-                    rtServer(
-                        id: 'Artifactory-1',
-                        url: 'http://65.2.35.73:8081/',
-                            // If you're using username and password:
-                        username: 'admin',
-                        password: 'Jfrog123@'
-                    )    
-                }
-            }
-        }
-
-          stage('Artifactory : Jfrog') {
-            when { expression { params.action == 'create' } }
-            steps {
-                script {
-                    sh 'curl -X PUT -u admin -T kubernetes-configmap-reload-0.0.1-SNAPSHOT.jar http://65.2.35.73:8082/artifactory/libs-release-local/'
-                }
-            }
-        }
+                    echo "Attempting to push the artifacts to jfrog Artifactory"
+                    withCredentials([usernamePassword(
+                        credentialsId: "Artifactory"
+                        usernameVariable: "USER",
+                        passwordVariable: "PASS"
+                    )]) {
+                        //Using Artifactory username and password variables
+                        echo "Username: $USER"
+                        echo "Password: $PASS"
+                        
+                        def curlCommand="curl -u '${USER}:${PASS} -T target/*.jar ${params.ArtifactoryURL}/artifactory/example-repo-local/"
+                        echo "Executing Curl Command: $curlCommand"
+                        sh curlCommand
+                      }
+                    }
+                 }
+            }    
+        
         stage('Docker Image Build'){
          when { expression {  params.action == 'create' } }
             steps{
